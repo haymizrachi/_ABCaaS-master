@@ -1,6 +1,7 @@
 ﻿using Microsoft.Kinect;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -166,6 +167,29 @@ namespace KinectDrawing
     {
         isDrawing = !isDrawing;
     }
+
+    private void runPythonRetrain(string img_path)
+    {
+        string fileName = @"C:\Users\admin\Anaconda3\envs\tensorenviron\label_image.py " + img_path;
+            // Example - C:\Users\admin\Anaconda3\envs\tensorenviron\1.jpg
+
+        Process p = new Process();
+        p.StartInfo = new ProcessStartInfo(@"python.exe", fileName)
+        {
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+        p.Start();
+
+        string output = p.StandardOutput.ReadToEnd();
+        p.WaitForExit();
+
+        MessageBox.Show(output);
+
+        Console.ReadLine();
+    }
+
     private void Export_Trail(Object sender, RoutedEventArgs e)
     {
         Polyline newTrain = trail;
@@ -181,7 +205,8 @@ namespace KinectDrawing
         string img_name = "../../imgs" + img_num++ + ".jpg";
         using (var file = File.OpenWrite(img_name))
         {
-            encoder.Save(file);
+                encoder.Save(file);
+                runPythonRetrain(img_name);
         }
     }
 }
